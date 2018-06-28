@@ -1,0 +1,304 @@
+﻿<!DOCTYPE html>
+<html>
+<body>
+    <p id="test"></p>
+    <button onclick="clearInterval(updateClock)">Pause</button>
+    <button id="start" onclick="updateClock = setInterval(mainUpdate, 20)">Start</button>
+    <button id="processNext" onclick="runNextGen()">Process Next Generation</button>
+    <canvas id="myCanvas" width="500" height="500" style="border:1px solid #d3d3d3;"></canvas>
+
+    <script>
+        //GLOBAL VARS
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+        var genePool = ["0000", "1111"];
+        var initX = 200; //Math.floor(Math.random() * 401);
+        var initY = 200;//Math.floor(Math.random() * 401);
+        var prevXDir = ["0", "0"];
+        var prevYDir = ["0", "0"];
+        var fitnessArr = [0, 0];
+        var avgFitness = 0;
+        var totalfitness = 0;
+        var deltaBrightness = [0, 0];
+        var prevBrightness = [0, 0];
+        var xArr = [0, 0];
+        var yArr = [0, 0];
+        var updateClock = setInterval(mainUpdate, 20);
+        //GRADIENT
+
+
+        function runNextGen() {
+            var placeholder = 0;
+            totalfitness = 0;
+            for (var l = 0; l < 16; l++) {
+                fitnessArr[l + 2] = calcFitness(xArr[l + 2], yArr[l + 2]);
+                totalfitness += fitnessArr[l + 2];
+               
+            }
+            avgFitness = totalfitness / 16;
+            console.log(avgFitness);
+            console.log(totalfitness);
+            for (var m = 0; m < 16; m++) {
+                var cros1;
+                var cros2;
+                if (fitnessArr[m + 2] > avgFitness) {
+                    cros1 = genePool[m + 2];
+                    for (var n = m; n < 16; n++) {
+                        if (fitnessArr[n + 2] > avgFitness) {
+                            cros2 = genePool[n + 2];
+                            if (Math.random() * 50 > 10) {
+                                if (Math.random() * 2 > 1) {
+                                    cros1[Math.floor(Math.random() * 8)] = "+";
+                                }
+                                else {
+                                    cros1[Math.floor(Math.random() * 8)] = "-";
+                                }
+                            }
+                            if (Math.random() * 50 > 10) {
+                                if (Math.random() * 2 > 1) {
+                                    cros2[Math.floor(Math.random() * 8)] = "+";
+                                }
+                                else {
+                                    cros2[Math.floor(Math.random() * 8)] = "-";
+                                }
+                            }
+                           // genePool[m + 2] = cros1.substring(0, 1) + cros2.substring(2, 8); //mating
+                           // genePool[n + 2] = cros2.substring(0, 1) + cros1.substring(2, 8);
+                            console.log(Math.floor(Math.random() * 8));
+                            
+                                for (var q = placeholder; q < 16; q++) {
+                                    if (fitnessArr[q + 2] < avgFitness) {
+                                        placeholder = q;
+                                        genePool[q + 2] = cros1.substring(0, 2) + cros2.substring(3, 8);
+                                        break;
+                                    }
+                                }
+                               for (var q = placeholder; q < 16; q++) {
+                                if (fitnessArr[q + 2] < avgFitness) {
+                                    placeholder = q;
+                                    genePool[q + 2] = cros2.substring(0, 2) + cros1.substring(3, 8);
+                                }
+                            }
+                            //console.log(genePool[n + 2]);
+                        }
+                    }
+                }
+            }
+            repoThoesBois();
+        }
+
+        function repoThoesBois() {
+            for (var z = 0; z < 16; z++) {
+                xArr[z+2] = initX;
+                yArr[z+2] = initY;
+                prevXDir[z+2] = "+";
+                prevYDir[z+2] = "+";
+                prevBrightness[z+2] = calcBrightness(initX, initY);
+                deltaBrightness[z+2] = 1;
+            }
+        }
+        //MANGO
+        //input: Delta Brightness, previous direction
+        //basically its and array of strings
+        //the string consists of "+" and "-"
+        //eg: ++-- ----
+
+        //each one is a case
+        //eg the first case is posDeltaGrightness, previous direction of posX, result posX, so it would be a bad "gene"
+        //if the delta brightness is negative and the direction gene is negative then the thing will keep going the same direction
+        //the positions of each are in arrays of ints, one for each axis
+        function createMangos() {
+            for (var i = 0; i < 16; i++) {
+                var tempGene = "";
+                for (var j = 0; j < 8; j++) {
+                    if (Math.floor(Math.random() * 2) > 0) {
+                        tempGene += "+"
+                    }
+                    else {
+                        tempGene += "-";
+                    }
+                }
+                genePool[genePool.length] = tempGene;
+                xArr[xArr.length] = initX;
+                yArr[yArr.length] = initY;
+                prevXDir[prevXDir.length] = "+";
+                prevYDir[prevYDir.length] = "+";
+                prevBrightness[prevBrightness.length] = calcBrightness(initX, initY);
+                deltaBrightness[deltaBrightness.length] = 1;
+                console.log(tempGene);
+            }
+
+        }
+
+        
+        createMangos();
+
+        function mainUpdate() {
+            //ctx.clearRect(0, 0, 500, 500); //DELETE THIS TO SHOW THE PATHS!!!!!!!!!!!
+            var light = ctx.createRadialGradient(150, 150, 0, 200, 200, 350);
+            light.addColorStop(0, "white");
+            light.addColorStop(1, "black");
+            ctx.fillStyle = light;
+            ctx.fillRect(0, 0, 500, 500);
+            for (var k = 0; k < 16; k++) {
+                updatePos(k);
+                drawMango(xArr[k + 2], yArr[k + 2]);
+            }
+
+
+        }
+
+
+        var i = 0;
+        function updatePos(gNum) {
+            //+++++++++++++++++
+
+            if (deltaBrightness[gNum + 2] > 0) { //this is bad
+
+
+                if (prevXDir[gNum + 2] == "+") {
+                    if (genePool[gNum + 2].charAt(0) == "+") {
+                        prevXDir[gNum + 2] = "+";
+                        xArr[gNum + 2] += 1; //+DB, +dir, +add === bad
+                    }
+                    else {
+                        prevXDir[gNum + 2] = "-"; //good
+                        xArr[gNum + 2] -= 1;
+                    }
+                }
+                else {
+                    if (genePool[gNum + 2].charAt(1) == "-") {
+                        prevXDir[gNum + 2] = "-"; //bad
+                        xArr[gNum + 2] -= 1;
+                    }
+                    else {
+                        prevXDir[gNum + 2] = "+";
+                        xArr[gNum + 2] += 1;
+                    }
+                }
+
+
+                if (prevYDir[gNum + 2] == "+") {
+                    if (genePool[gNum + 2].charAt(2) == "+") { //bad
+                        prevYDir[gNum + 2] = "+";
+                        yArr[gNum + 2] += 1;
+                    }
+                    else {
+                        prevYDir[gNum + 2] = "-"; //good
+                        yArr[gNum + 2] -= 1;
+                    }
+                }
+                else {
+                    if (genePool[gNum + 2].charAt(3) == "-") { //bad
+                        prevYDir[gNum + 2] = "-";
+                        yArr[gNum + 2] -= 1;
+                    }
+                    else {
+                        prevYDir[gNum + 2] = "+";
+                        yArr[gNum + 2] += 1;
+                    }
+                }
+
+
+            }
+            else { //if the delta brightness is lower ie. good
+                if (prevXDir[gNum + 2] == "+") {
+                    if (genePool[gNum + 2].charAt(4) == "+") {
+                        prevXDir[gNum + 2] = "+";
+                        xArr[gNum + 2] += 1; //good
+                    }
+                    else {
+                        prevXDir[gNum + 2] = "-"; //bad
+                        xArr[gNum + 2] -= 1;
+                    }
+                }
+                else {
+                    if (genePool[gNum + 2].charAt(5) == "-") {
+                        prevXDir[gNum + 2] = "-"; //good
+                        xArr[gNum + 2] -= 1;
+                    }
+                    else {
+                        prevXDir[gNum + 2] = "+"; //bad
+                        xArr[gNum + 2] += 1;
+                    }
+                }
+
+
+                if (prevYDir[gNum + 2] == "+") {
+                    if (genePool[gNum + 2].charAt(6) == "+") { //good
+                        prevYDir[gNum + 2] = "+";
+                        yArr[gNum + 2] += 1;
+                    }
+                    else {
+                        prevYDir[gNum + 2] = "-"; //bad
+                        yArr[gNum + 2] -= 1;
+                    }
+                }
+                else {
+                    if (genePool[gNum + 2].charAt(7) == "-") { //good
+                        prevYDir[gNum + 2] = "-";
+                        yArr[gNum + 2] -= 1;
+                    }
+                    else {
+                        prevYDir[gNum + 2] = "+"; //bad
+                        yArr[gNum + 2] += 1;
+                    }
+                }
+            }
+            // code that looks at the gens and returns new positions to the array
+            deltaBrightness[gNum + 2] = calcBrightness(xArr[gNum + 2], yArr[gNum + 2]) - prevBrightness[gNum + 2];
+            if (yArr[gNum + 2] >= 500) {
+                yArr[gNum + 2] = 500;
+            }
+            if (yArr[gNum + 2] <= 0) {
+                yArr[gNum + 2] = 0;
+            }
+            if (xArr[gNum + 2] >= 500) {
+                xArr[gNum + 2] = 500;
+            }
+            if (xArr[gNum + 2] <= 0) {
+                xArr[gNum + 2] = 0;
+            }
+            prevBrightness[gNum + 2] = calcBrightness(xArr[gNum + 2], yArr[gNum + 2]);
+        }
+
+        function drawMango(xCord, yCord) {
+            ctx.beginPath();
+            ctx.arc(xCord, yCord, 5, 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'orange';
+            ctx.fill();
+            ctx.lineWidth = 0;
+            ctx.strokeStyle = '#003300';
+            ctx.stroke();
+        }
+
+        //DISTANCE RELATED CALCS
+        function calcDistance(xCord, yCord) {
+            var xDist = Math.abs(xCord - 150);
+            var yDist = Math.abs(yCord - 150);
+            return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
+
+        }
+
+        function calcBrightness(xCord, yCord) {
+            if (calcDistance(xCord, yCord) == 0) {
+
+                return 1;
+            }
+            else {
+
+                return 1 / calcDistance(xCord, yCord);
+            }
+        }
+
+
+
+        function calcFitness(xCord, yCord) {
+            return calcDistance(xCord, yCord) / 494;
+        }
+
+
+    </script>
+
+</body>
+</html>
