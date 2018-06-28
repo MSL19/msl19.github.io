@@ -4,11 +4,15 @@
     <p id="test"></p>
     <button onclick="clearInterval(updateClock)">Pause</button>
     <button id="start" onclick="updateClock = setInterval(mainUpdate, 10)">Start</button>
+    <button id="start" onclick="moveLPos()">Move Light Position</button>
     <button id="processNext" onclick="runNextGen()">Process Next Generation</button>
     <canvas id="myCanvas" width="500" height="500" style="border:1px solid #d3d3d3;"></canvas>
 
+
     <script>
         //GLOBAL VARS
+        var lPx = Math.floor(Math.random() * 401);
+        var lPy = Math.floor(Math.random() * 401);
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
         var genePool = ["0000", "1111"];
@@ -25,7 +29,10 @@
         var yArr = [0, 0];
         var updateClock = setInterval(mainUpdate, 10);
         //GRADIENT
-
+        function moveLPos(){
+            lPx = Math.floor(Math.random() * 401);
+            lPy = Math.floor(Math.random() * 401);
+        }
 
         function runNextGen() {
             var placeholder = 0;
@@ -137,7 +144,7 @@
 
         function mainUpdate() {
             //ctx.clearRect(0, 0, 500, 500); //DELETE THIS TO SHOW THE PATHS!!!!!!!!!!!
-            var light = ctx.createRadialGradient(150, 150, 0, 200, 200, 350);
+            var light = ctx.createRadialGradient(lPx, lPy, 0, 200, 200, 350);
             light.addColorStop(0, "white");
             light.addColorStop(1, "black");
             ctx.fillStyle = light;
@@ -276,8 +283,8 @@
 
         //DISTANCE RELATED CALCS
         function calcDistance(xCord, yCord) {
-            var xDist = Math.abs(xCord - 150);
-            var yDist = Math.abs(yCord - 150);
+            var xDist = Math.abs(xCord - lPx);
+            var yDist = Math.abs(yCord - lPy);
             return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
 
         }
