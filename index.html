@@ -3,7 +3,7 @@
 <body>
     <p id="test"></p>
     <button onclick="clearInterval(updateClock)">Pause</button>
-    <button id="start" onclick="updateClock = setInterval(mainUpdate, 20)">Start</button>
+    <button id="start" onclick="updateClock = setInterval(mainUpdate, 10)">Start</button>
     <button id="processNext" onclick="runNextGen()">Process Next Generation</button>
     <canvas id="myCanvas" width="500" height="500" style="border:1px solid #d3d3d3;"></canvas>
 
@@ -12,8 +12,8 @@
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
         var genePool = ["0000", "1111"];
-        var initX = 200; //Math.floor(Math.random() * 401);
-        var initY = 200;//Math.floor(Math.random() * 401);
+        var initX = Math.floor(Math.random() * 401);
+        var initY = Math.floor(Math.random() * 401);
         var prevXDir = ["0", "0"];
         var prevYDir = ["0", "0"];
         var fitnessArr = [0, 0];
@@ -23,7 +23,7 @@
         var prevBrightness = [0, 0];
         var xArr = [0, 0];
         var yArr = [0, 0];
-        var updateClock = setInterval(mainUpdate, 20);
+        var updateClock = setInterval(mainUpdate, 10);
         //GRADIENT
 
 
@@ -33,7 +33,7 @@
             for (var l = 0; l < 16; l++) {
                 fitnessArr[l + 2] = calcFitness(xArr[l + 2], yArr[l + 2]);
                 totalfitness += fitnessArr[l + 2];
-               
+
             }
             avgFitness = totalfitness / 16;
             console.log(avgFitness);
@@ -62,21 +62,21 @@
                                     cros2[Math.floor(Math.random() * 8)] = "-";
                                 }
                             }
-                           // genePool[m + 2] = cros1.substring(0, 1) + cros2.substring(2, 8); //mating
-                           // genePool[n + 2] = cros2.substring(0, 1) + cros1.substring(2, 8);
-                            console.log(Math.floor(Math.random() * 8));
-                            
-                                for (var q = placeholder; q < 16; q++) {
-                                    if (fitnessArr[q + 2] < avgFitness) {
-                                        placeholder = q;
-                                        genePool[q + 2] = cros1.substring(0, 2) + cros2.substring(3, 8);
-                                        break;
-                                    }
-                                }
-                               for (var q = placeholder; q < 16; q++) {
+                            genePool[m + 2] = cros1.substring(0, 4) + cros2.substring(4, 8);
+                            genePool[n + 2] = cros2.substring(0, 4) + cros1.substring(4, 8);
+                            console.log(cros1.substring(6, 8));
+
+                            for (var q = placeholder; q < 16; q++) {
                                 if (fitnessArr[q + 2] < avgFitness) {
                                     placeholder = q;
-                                    genePool[q + 2] = cros2.substring(0, 2) + cros1.substring(3, 8);
+                                    genePool[q + 2] = cros1.substring(0, 2) + cros2.substring(2, 8);
+                                    break;
+                                }
+                            }
+                            for (var q = placeholder; q < 16; q++) {
+                                if (fitnessArr[q + 2] < avgFitness) {
+                                    placeholder = q;
+                                    genePool[q + 2] = cros2.substring(0, 2) + cros1.substring(2, 8);
                                 }
                             }
                             //console.log(genePool[n + 2]);
@@ -88,13 +88,15 @@
         }
 
         function repoThoesBois() {
+            initX = Math.floor(Math.random() * 401);
+            initY = Math.floor(Math.random() * 401);
             for (var z = 0; z < 16; z++) {
-                xArr[z+2] = initX;
-                yArr[z+2] = initY;
-                prevXDir[z+2] = "+";
-                prevYDir[z+2] = "+";
-                prevBrightness[z+2] = calcBrightness(initX, initY);
-                deltaBrightness[z+2] = 1;
+                xArr[z + 2] = initX;
+                yArr[z + 2] = initY;
+                prevXDir[z + 2] = "+";
+                prevYDir[z + 2] = "+";
+                prevBrightness[z + 2] = calcBrightness(initX, initY);
+                deltaBrightness[z + 2] = 1;
             }
         }
         //MANGO
@@ -130,7 +132,7 @@
 
         }
 
-        
+
         createMangos();
 
         function mainUpdate() {
