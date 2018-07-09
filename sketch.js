@@ -88,7 +88,7 @@ function draw() {
 
   // Draw all the food and all the poison
   for (var i = 0; i < food.length; i++) {
-    fill(0, 255, 0);
+    fill(0, 255, 100);
     noStroke();
     ellipse(food[i].x, food[i].y, 4);
   }
