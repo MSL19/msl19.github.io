@@ -27,7 +27,7 @@ function draw() {
         count = 0;
         genCount++;
         finished = false;
-        document.getElementById("countDisp").innerHTML = "Generation: "+genCount;
+       // document.getElementById("countDisp").innerHTML = "Generation: "+genCount;
     }
     fill(255);
     rect(100,150,200,10);
