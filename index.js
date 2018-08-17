@@ -63,7 +63,7 @@ function Population(){
         this.matingpool = [];
 
         for(var i = 0; i< this.popsize; i++){
-            var n = this.rockets[i].fitness * 100;
+            var n = Math.pow(this.rockets[i].fitness, 1.5) * 100;
            for (var j=0; j<n; j++){
                this.matingpool.push(this.rockets[i]);
            }
@@ -176,6 +176,7 @@ function Rocket(dna) {
         var d = dist(this.pos.x, this.pos.y, target.x, target.y);
         if(d < 10){
             this.completed = true;
+            finished = true;
             this.pos = target.copy();
         }
         if(this.pos.x > rx&& this.pos.x < rx+rw && this.pos.y > ry && this.pos.y < ry+rh){
